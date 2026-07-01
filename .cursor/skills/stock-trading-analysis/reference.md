@@ -14,24 +14,28 @@ $[SUPPORT_3]     ← 200 SMA / channel bottom
 
 ## Scenario probability template (required in every analysis)
 
+**Horizon target default:** For spans **≤3 months**, all T1/T2/T3 and scenario price zones are **peak-in-span** — the high (long) or low (short) **touched at any point** during the window, **not** the expected close on the last day. Label columns accordingly.
+
 ```markdown
 ## Scenario probabilities (estimates)
 *Based on pattern context, Wyckoff phase, MA structure, RSI, and historical studies — not guarantees.*
+*Targets ≤3mo = **peak potential during span**, not terminal close unless noted.*
 
 ### Direction (within [X]-week horizon)
-| Scenario | Probability | Key drivers |
-|----------|-------------|-------------|
-| [Primary thesis plays out] | XX–XX% | [e.g. Wyckoff Phase D + weekly reversal] |
-| [Chop / no resolution] | XX–XX% | [e.g. range hold, conflicting daily/weekly] |
-| [Invalidation] | XX–XX% | [e.g. reclaim $X on volume] |
+| Scenario | Probability | Peak zone (in span) | Key drivers |
+|----------|-------------|---------------------|-------------|
+| [Primary thesis plays out] | XX–XX% | $X–$Y peak | [e.g. Wyckoff Phase D + weekly reversal] |
+| [Chop / no resolution] | XX–XX% | $X–$Y peak | [e.g. range hold, conflicting daily/weekly] |
+| [Invalidation] | XX–XX% | $X trough | [e.g. reclaim $X on volume] |
 
-### Target reach (if primary thesis active)
-| Target | Price | Est. reach prob. | Timeframe |
-|--------|-------|------------------|-----------|
-| T1 | $X | XX–XX% | X weeks |
-| T2 | $X | XX–XX% | X weeks |
-| T3 | $X | XX–XX% | X weeks |
+### Peak target reach (if primary thesis active)
+| Target | Peak price (in span) | Est. touch prob. | Horizon | Terminal close note |
+|--------|----------------------|------------------|---------|---------------------|
+| T1 | $X | XX–XX% | X weeks | [optional: "may fade to $Y by day 30"] |
+| T2 | $X | XX–XX% | X weeks | |
+| T3 | $X | XX–XX% | X weeks | |
 
+**Peak gain from entry:** +X% to +Y% possible during span
 **Confidence:** High / Medium / Low
 **Confluence score:** X/10 — [list factors]
 ```
@@ -45,6 +49,13 @@ Start at **50%** for primary direction, then adjust:
 | Weekly trend aligned | +8 | +8 |
 | Wyckoff phase C/D/E (distrib) or C/D/E (accum) | −10 | +10 |
 | Tier 1 candlestick at correct S/R | +8 | +8 |
+| Cup & handle breakout confirmed (volume) | +10 | — |
+| Ascending triangle breakout confirmed | +8 | — |
+| Falling wedge breakout confirmed | +8 | — |
+| Rising wedge breakdown confirmed | — | +8 |
+| Chart pattern early stalk only (no volume) | +3 | +3 |
+| Chart pattern failed / weak breakout | −10 | — |
+| Chart pattern failed / weak breakdown | — | −10 |
 | RSI divergence aligned | +7 | +7 |
 | Golden cross (weekly) | +10 | −10 |
 | Death cross (weekly) | −10 | +10 |
@@ -57,7 +68,7 @@ Start at **50%** for primary direction, then adjust:
 
 Cap direction probability **35–75%** unless exceptional confluence (state why if outside).
 
-**Target reach:** T1 closer = higher prob; each subsequent target −10–15%. Wyckoff cause–effect target: use phase resolution rates from [wyckoff.md](wyckoff.md).
+**Target reach:** T1 closer = higher prob; each subsequent target −10–15%. Wyckoff cause–effect target: use phase resolution rates from [wyckoff.md](wyckoff.md). For horizons **≤3 months**, "reach" = **price touched at any point in span** (peak high / trough low), not close at horizon end.
 
 ## Execution card template
 

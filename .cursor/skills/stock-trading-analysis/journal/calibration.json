@@ -1,22 +1,22 @@
 {
-  "generated_at": "2026-07-01T00:49:42Z",
-  "total_logged": 4,
-  "pending_review": 4,
+  "generated_at": "2026-07-01T03:36:06Z",
+  "total_logged": 9,
+  "pending_review": 9,
   "reviewed": 0,
   "overall_verdict_win_rate": null,
   "by_trade_bias": {
     "wait": {
-      "n": 2,
+      "n": 4,
       "reviewed": 0
     },
     "wait_or_reduce_size": {
-      "n": 2,
+      "n": 5,
       "reviewed": 0
     }
   },
   "by_mtf_verdict": {
     "mixed_neutral": {
-      "n": 3,
+      "n": 8,
       "reviewed": 0
     },
     "bullish_but_conflicted": {
@@ -26,13 +26,17 @@
   },
   "by_mtf_alignment": {
     "conflicted": {
-      "n": 4,
+      "n": 8,
+      "reviewed": 0
+    },
+    "aligned": {
+      "n": 1,
       "reviewed": 0
     }
   },
   "by_direction": {
     "long": {
-      "n": 4,
+      "n": 9,
       "reviewed": 0
     }
   },
@@ -42,13 +46,13 @@
       "reviewed": 0
     },
     "stock": {
-      "n": 3,
+      "n": 8,
       "reviewed": 0
     }
   },
   "by_setup_tag": {
     "oversold_daily": {
-      "n": 1,
+      "n": 2,
       "reviewed": 0
     },
     "below_200sma": {
@@ -60,7 +64,7 @@
       "reviewed": 0
     },
     "death_cross_daily": {
-      "n": 2,
+      "n": 4,
       "reviewed": 0
     },
     "support_test": {
@@ -72,7 +76,7 @@
       "reviewed": 0
     },
     "earnings_catalyst": {
-      "n": 1,
+      "n": 3,
       "reviewed": 0
     },
     "overbought_rsi": {
@@ -86,22 +90,74 @@
     "ath_volume_divergence": {
       "n": 1,
       "reviewed": 0
+    },
+    "macro_cup_handle": {
+      "n": 2,
+      "reviewed": 0
+    },
+    "ascending_triangle_forming": {
+      "n": 2,
+      "reviewed": 0
+    },
+    "golden_cross_weekly": {
+      "n": 3,
+      "reviewed": 0
+    },
+    "weekly_distribution": {
+      "n": 4,
+      "reviewed": 0
+    },
+    "tv_mixed_mtf": {
+      "n": 2,
+      "reviewed": 0
+    },
+    "tv_daily_sell": {
+      "n": 2,
+      "reviewed": 0
+    },
+    "oversold_stochastic_daily": {
+      "n": 2,
+      "reviewed": 0
+    },
+    "falling_wedge_forming": {
+      "n": 2,
+      "reviewed": 0
+    },
+    "rising_wedge_forming": {
+      "n": 2,
+      "reviewed": 0
+    },
+    "tv_lean_bullish": {
+      "n": 3,
+      "reviewed": 0
+    },
+    "cup_and_handle_forming": {
+      "n": 1,
+      "reviewed": 0
+    },
+    "accumulation_possible": {
+      "n": 1,
+      "reviewed": 0
+    },
+    "post_hype_markdown": {
+      "n": 1,
+      "reviewed": 0
     }
   },
   "probability_adjustments": [],
   "lessons": [
     "Calibration immature (n=0). Need 20+ reviewed outcomes before adjusting base rates aggressively.",
-    "Win rate \u2260 edge. Track expectancy: avg win \u00d7 win% \u2212 avg loss \u00d7 loss%. Hedge funds target asymmetric R:R, not 90% wins."
+    "Win rate != edge. Track expectancy: avg win x win% - avg loss x loss%. Hedge funds target asymmetric R:R, not 90% wins."
   ],
   "htf_ltf_conflict_present": {
     "yes": {
-      "n": 3,
+      "n": 7,
       "reviewed": 0
     }
   },
   "htf_ltf_conflict_absent": {
     "no": {
-      "n": 1,
+      "n": 2,
       "reviewed": 0
     }
   }

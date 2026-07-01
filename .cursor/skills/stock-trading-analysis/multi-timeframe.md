@@ -8,6 +8,8 @@ Run before any analysis:
 python ".cursor/skills/stock-trading-analysis/scripts/fetch_mtf_analysis.py" TICKER --pretty
 ```
 
+When TradingView MCP is connected, also call `multi_timeframe_analysis` and `coin_analysis` (1W, 1D). **Merge both into the matrix below** — the agent row is the synthesis, not a copy of TV bias.
+
 ---
 
 ## Timeframe hierarchy
@@ -40,10 +42,11 @@ python ".cursor/skills/stock-trading-analysis/scripts/fetch_mtf_analysis.py" TIC
 | **Price–volume divergence** | Script | Rally on declining volume = weak (Wyckoff effort vs result) |
 | **RSI divergence** | Script | Bearish: price HH + RSI LH. Bullish: price LL + RSI HL |
 | **Candlestick patterns** | Script | Last-bar: doji, engulfing, hammer, shooting star — **always add location context** |
+| **Chart patterns** | Script | Cup & handle, ascending triangle, falling/rising wedge — bullish vs bearish direction |
 | **Wyckoff hint** | Script | distribution_warning / accumulation_possible / markup_confirmed / markdown |
 | **Per-TF bias** | Script | bullish / bearish / neutral + score + reasons |
 
-See also: [moving-averages.md](moving-averages.md), [patterns.md](patterns.md), [wyckoff.md](wyckoff.md).
+See also: [moving-averages.md](moving-averages.md), [patterns.md](patterns.md), [chart-patterns.md](chart-patterns.md), [wyckoff.md](wyckoff.md).
 
 ---
 
@@ -67,11 +70,18 @@ Copy this block into every analysis response:
 ## MTF Conflicts (if any)
 - [severity] flag — message
 
-## MTF Synthesis
-- **HTF bias:** [monthly/weekly verdict]
+## MTF Synthesis (agent verdict — independent of TV)
+- **TV MCP alignment:** [e.g. LEAN BULLISH, net +2] — cite only; do not stop here
+- **HTF bias:** [monthly/weekly verdict from script + Wyckoff]
 - **LTF setup:** [4H/1H/daily entry quality]
-- **Alignment:** aligned / conflicted
-- **Trade implication:** [e.g. "4H looks buyable but weekly overbought + declining volume = risky long — wait or half size"]
+- **Alignment:** aligned / conflicted (script `synthesis.alignment` + TV divergent TFs)
+- **Agent trade_bias:** [wait / long / short] — **may override TV** when conflicts or distribution present
+- **Trade implication:** [e.g. "TV says cautious buy; agent says wait — weekly distribution + rising wedge outweigh TV daily BUY"]
+
+## Chart patterns (if detected)
+| Pattern | TF | State | Level | Volume | Play |
+|---------|----|-------|-------|--------|------|
+| | | | | | early stalk / confirmed / wait |
 ```
 
 ---
@@ -174,6 +184,21 @@ Patterns from the script are **hints only**. Apply [patterns.md](patterns.md) co
 - Doji alone = indecision — wait for next candle
 
 Always state: **pattern + timeframe + location + trend**.
+
+---
+
+## Chart patterns (weekly / daily)
+
+From `chart_patterns_summary` in MTF JSON. Apply [chart-patterns.md](chart-patterns.md):
+
+- **Cup & handle:** U-cup 12–35% depth; handle ≤12% in upper half; volume dry-up in handle; breakout +40% vs 50-day avg
+- **Ascending triangle:** flat resistance + rising lows; volume contracts in pattern; close above resistance on 1.5–2× volume
+- **Falling wedge (bullish):** converging down-sloping lines; upper falls faster; volume contracts; close above upper line on 1.5–2× volume
+- **Rising wedge (bearish):** converging up-sloping lines; lower rises faster; volume declines; close below lower line on volume expansion
+- **Early play** = stalk (handle forming, apex approaching) — smaller size, wider invalidation
+- **Confirmed** = breakout with volume — standard entry per O'Neil / StockCharts rules
+
+Discount script detection ~10% vs manual chart review.
 
 ---
 

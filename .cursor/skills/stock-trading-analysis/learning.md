@@ -55,7 +55,7 @@ python ".cursor/skills/stock-trading-analysis/scripts/trading_journal.py" pendin
 | `mtf_alignment` | `aligned` / `conflicted` | Critical for learning |
 | `mtf_conflicts_high` | `1` | HTF/LTF conflict count |
 | `price_at_analysis` | `17.93` | Entry reference |
-| `targets` | `[{"price": 19.25, "prob": 0.52}]` | Calibrate reach rates |
+| `targets` | `[{"price": 19.25, "prob": 0.52}]` | **Peak-in-span** levels (≤3mo): highest/lowest expected **touched** during horizon — not terminal close |
 | `stop` | `16.45` | Stop-hit tracking |
 | `confidence` | `medium` | vs actual |
 | `confluence_score` | `6` | 1–10 |
@@ -72,6 +72,8 @@ python ".cursor/skills/stock-trading-analysis/scripts/trading_journal.py" pendin
 **MTF:** `htf_ltf_conflict`, `mtf_aligned_bullish`, `mtf_aligned_bearish`
 
 **Context:** `earnings_catalyst`, `ath_test`, `support_test`, `resistance_fade`, `parabolic_move`
+
+**Chart patterns:** `cup_and_handle_forming`, `cup_and_handle_ready`, `cup_and_handle_breakout`, `cup_and_handle_failed`, `ascending_triangle_forming`, `ascending_triangle_apex`, `ascending_triangle_breakout`, `ascending_triangle_failed`, `falling_wedge_forming`, `falling_wedge_apex`, `falling_wedge_breakout`, `falling_wedge_failed`, `rising_wedge_forming`, `rising_wedge_apex`, `rising_wedge_breakdown`, `rising_wedge_failed`
 
 **Fundamental:** `above_analyst_targets`, `below_analyst_targets`, `insider_buying`
 
@@ -94,14 +96,14 @@ Save as temp file or pipe JSON:
   "mtf_conflicts_high": 1,
   "price_at_analysis": 17.93,
   "targets": [
-    {"price": 19.25, "prob": 0.52, "label": "T1"},
-    {"price": 21.50, "prob": 0.32, "label": "T2"}
+    {"price": 19.25, "prob": 0.52, "label": "T1", "type": "peak_in_span"},
+    {"price": 21.50, "prob": 0.32, "label": "T2", "type": "peak_in_span"}
   ],
   "stop": 16.45,
   "confidence": "medium",
   "confluence_score": 6,
   "setup_tags": ["death_cross_daily", "accumulation_weekly", "htf_ltf_conflict", "earnings_catalyst"],
-  "notes": "Half size due to Jul 28 earnings"
+  "notes": "Half size due to Jul 28 earnings. Peak $21 possible; terminal close est. $18–19."
 }
 ```
 

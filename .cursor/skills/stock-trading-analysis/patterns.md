@@ -94,3 +94,9 @@ When assigning scenario probabilities in output, adjust base rates:
 - Tier 3 or mislocated pattern: **~40–50%** (near coin flip — prefer wait)
 
 *These are estimates for analysis output, not guaranteed odds.*
+
+---
+
+## Multi-bar chart patterns (not candlesticks)
+
+Single-candle patterns above. For **cup & handle**, **ascending triangle**, **falling wedge**, and **rising wedge** (weekly/daily), see **[chart-patterns.md](chart-patterns.md)** — includes volume rules, early stalk vs confirmed breakout/breakdown, and probability adjustments.

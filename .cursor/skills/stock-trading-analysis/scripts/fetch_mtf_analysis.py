@@ -22,6 +22,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from chart_patterns import detect_chart_patterns, summarize_patterns
 from fetch_chart import (
     USER_AGENT,
     YAHOO_CHART,
@@ -332,6 +333,37 @@ def tf_bias(ind: dict[str, Any], tf: str) -> dict[str, Any]:
         score += 1
         reasons.append("bullish RSI divergence")
 
+    for cp in ind.get("chart_patterns") or []:
+        state = cp.get("state", "")
+        name = cp.get("pattern", "")
+        direction = cp.get("direction", "bullish")
+        if state == "breakout_confirmed":
+            score += 2
+            reasons.append(f"{name} breakout confirmed")
+        elif state == "breakdown_confirmed":
+            score -= 2
+            reasons.append(f"{name} breakdown confirmed")
+        elif state in ("handle_ready", "apex_approaching", "wedge_forming", "triangle_forming"):
+            if direction == "bearish":
+                score -= 1
+                reasons.append(f"{name} bearish early setup")
+            else:
+                score += 1
+                reasons.append(f"{name} early setup")
+        elif state in ("breakout_weak", "breakdown_weak", "failed"):
+            if direction == "bearish" and state == "failed":
+                score += 1
+                reasons.append(f"{name} failed (bullish escape)")
+            elif direction == "bullish" and state == "failed":
+                score -= 1
+                reasons.append(f"{name} failed")
+            elif state == "breakdown_weak":
+                score -= 1
+                reasons.append(f"{name} weak breakdown")
+            else:
+                score -= 1
+                reasons.append(f"{name} weak breakout")
+
     if score >= 2:
         label = "bullish"
     elif score <= -2:
@@ -384,6 +416,7 @@ def analyze_timeframe(
         "volume": volume_analysis(bars),
         "rsi_divergence": rsi_divergence(closes),
         "candlestick_patterns": detect_candlestick(bars),
+        "chart_patterns": detect_chart_patterns(bars, label),
         "wyckoff_hint": wyckoff_hint(bars, ma_stack(price, s50, s200)),
         "performance": {
             "change_1m_pct": round(pct_change(closes[-1], closes[-22]), 2) if len(closes) >= 22 else None,
@@ -578,6 +611,11 @@ def run_mtf_analysis(symbol: str, bars_keep: int = 8) -> dict[str, Any]:
     conflicts = detect_conflicts(analyses)
     synthesis = synthesize_mtf(analyses, conflicts)
 
+    all_chart_patterns: list[dict[str, Any]] = []
+    for a in analyses.values():
+        if "error" not in a:
+            all_chart_patterns.extend(a.get("chart_patterns") or [])
+
     price = meta_global.get("regularMarketPrice")
     return {
         "symbol": meta_global.get("symbol", symbol.upper()),
@@ -588,6 +626,7 @@ def run_mtf_analysis(symbol: str, bars_keep: int = 8) -> dict[str, Any]:
             "fifty_two_week_low": meta_global.get("fiftyTwoWeekLow"),
         },
         "timeframes": analyses,
+        "chart_patterns_summary": summarize_patterns(all_chart_patterns),
         "conflicts": conflicts,
         "synthesis": synthesis,
     }

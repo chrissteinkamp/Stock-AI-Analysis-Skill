@@ -1,0 +1,37 @@
+{
+  "mcpServers": {
+    "tradingview": {
+      "command": "C:\\Users\\Owner\\.local\\bin\\uvx.exe",
+      "args": [
+        "--python",
+        "3.13",
+        "--from",
+        "tradingview-mcp-server",
+        "tradingview-mcp"
+      ]
+    },
+    "kraken": {
+      "command": "C:\\Users\\Owner\\.local\\bin\\uvx.exe",
+      "args": [
+        "--python",
+        "3.13",
+        "--from",
+        "mcp-kraken==0.1.4",
+        "mcp-kraken",
+        "serve",
+        "--stdio"
+      ]
+    },
+    "coinbase": {
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": [
+        "-y",
+        "@coinbase/coinbase-cli",
+        "mcp"
+      ],
+      "env": {
+        "CDP_ENV": "live"
+      }
+    }
+  }
+}
