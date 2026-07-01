@@ -1,42 +1,50 @@
 {
-  "generated_at": "2026-07-01T03:36:06Z",
-  "total_logged": 9,
-  "pending_review": 9,
+  "generated_at": "2026-07-01T20:26:53Z",
+  "total_logged": 26,
+  "pending_review": 26,
   "reviewed": 0,
   "overall_verdict_win_rate": null,
   "by_trade_bias": {
     "wait": {
-      "n": 4,
+      "n": 8,
       "reviewed": 0
     },
     "wait_or_reduce_size": {
-      "n": 5,
+      "n": 7,
+      "reviewed": 0
+    },
+    "long": {
+      "n": 11,
       "reviewed": 0
     }
   },
   "by_mtf_verdict": {
     "mixed_neutral": {
-      "n": 8,
+      "n": 13,
       "reviewed": 0
     },
     "bullish_but_conflicted": {
-      "n": 1,
+      "n": 2,
+      "reviewed": 0
+    },
+    "bullish_aligned": {
+      "n": 11,
       "reviewed": 0
     }
   },
   "by_mtf_alignment": {
     "conflicted": {
-      "n": 8,
+      "n": 13,
       "reviewed": 0
     },
     "aligned": {
-      "n": 1,
+      "n": 13,
       "reviewed": 0
     }
   },
   "by_direction": {
     "long": {
-      "n": 9,
+      "n": 26,
       "reviewed": 0
     }
   },
@@ -46,7 +54,11 @@
       "reviewed": 0
     },
     "stock": {
-      "n": 8,
+      "n": 22,
+      "reviewed": 0
+    },
+    "etf": {
+      "n": 3,
       "reviewed": 0
     }
   },
@@ -60,11 +72,11 @@
       "reviewed": 0
     },
     "death_cross_weekly": {
-      "n": 1,
+      "n": 2,
       "reviewed": 0
     },
     "death_cross_daily": {
-      "n": 4,
+      "n": 5,
       "reviewed": 0
     },
     "support_test": {
@@ -76,15 +88,15 @@
       "reviewed": 0
     },
     "earnings_catalyst": {
-      "n": 3,
+      "n": 5,
       "reviewed": 0
     },
     "overbought_rsi": {
-      "n": 1,
+      "n": 2,
       "reviewed": 0
     },
     "extended_200sma": {
-      "n": 1,
+      "n": 9,
       "reviewed": 0
     },
     "ath_volume_divergence": {
@@ -92,19 +104,19 @@
       "reviewed": 0
     },
     "macro_cup_handle": {
-      "n": 2,
-      "reviewed": 0
-    },
-    "ascending_triangle_forming": {
-      "n": 2,
-      "reviewed": 0
-    },
-    "golden_cross_weekly": {
       "n": 3,
       "reviewed": 0
     },
-    "weekly_distribution": {
+    "ascending_triangle_forming": {
       "n": 4,
+      "reviewed": 0
+    },
+    "golden_cross_weekly": {
+      "n": 17,
+      "reviewed": 0
+    },
+    "weekly_distribution": {
+      "n": 6,
       "reviewed": 0
     },
     "tv_mixed_mtf": {
@@ -120,11 +132,11 @@
       "reviewed": 0
     },
     "falling_wedge_forming": {
-      "n": 2,
+      "n": 3,
       "reviewed": 0
     },
     "rising_wedge_forming": {
-      "n": 2,
+      "n": 5,
       "reviewed": 0
     },
     "tv_lean_bullish": {
@@ -132,15 +144,83 @@
       "reviewed": 0
     },
     "cup_and_handle_forming": {
-      "n": 1,
+      "n": 9,
       "reviewed": 0
     },
     "accumulation_possible": {
-      "n": 1,
+      "n": 3,
       "reviewed": 0
     },
     "post_hype_markdown": {
       "n": 1,
+      "reviewed": 0
+    },
+    "golden_cross_daily": {
+      "n": 11,
+      "reviewed": 0
+    },
+    "bullish_ma_stack": {
+      "n": 13,
+      "reviewed": 0
+    },
+    "mtf_aligned_bullish": {
+      "n": 11,
+      "reviewed": 0
+    },
+    "rally_low_volume": {
+      "n": 4,
+      "reviewed": 0
+    },
+    "nasdaq_phase1_unified": {
+      "n": 15,
+      "reviewed": 0
+    },
+    "golden_cross_forming": {
+      "n": 1,
+      "reviewed": 0
+    },
+    "cup_and_handle_ready": {
+      "n": 2,
+      "reviewed": 0
+    },
+    "distribution_warning": {
+      "n": 1,
+      "reviewed": 0
+    },
+    "oversold_rsi": {
+      "n": 2,
+      "reviewed": 0
+    },
+    "emerging_pre_gc_weekly": {
+      "n": 1,
+      "reviewed": 0
+    },
+    "htf_ltf_conflict": {
+      "n": 1,
+      "reviewed": 0
+    },
+    "cup_and_handle_failed": {
+      "n": 8,
+      "reviewed": 0
+    },
+    "bearish_rsi_divergence": {
+      "n": 1,
+      "reviewed": 0
+    },
+    "ath_test": {
+      "n": 2,
+      "reviewed": 0
+    },
+    "ascending_triangle_apex": {
+      "n": 1,
+      "reviewed": 0
+    },
+    "rising_wedge_apex": {
+      "n": 1,
+      "reviewed": 0
+    },
+    "ascending_triangle_breakout": {
+      "n": 4,
       "reviewed": 0
     }
   },
@@ -151,13 +231,13 @@
   ],
   "htf_ltf_conflict_present": {
     "yes": {
-      "n": 7,
+      "n": 9,
       "reviewed": 0
     }
   },
   "htf_ltf_conflict_absent": {
     "no": {
-      "n": 2,
+      "n": 17,
       "reviewed": 0
     }
   }

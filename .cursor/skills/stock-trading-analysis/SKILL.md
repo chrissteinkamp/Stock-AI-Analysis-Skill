@@ -355,6 +355,39 @@ Required fields: `symbol`, `asset_type`, `horizon`, `direction`, `verdict`, `tra
 
 See [learning.md](learning.md) for template and tag list. **Never skip logging** — this is how win rates improve over time.
 
+## Stock screening — Phase 1 vs Phase 2
+
+Bulk scans use `scan_golden_cross.py`. **NASDAQ and S&P 500 share one pipeline** (`run_unified_phase1_scan`): unified Phase 1, then Phase 2 `fetch_mtf_analysis` + **`bull_score`** on top N. Legacy CLI flags (`--emerging-trend`, `--sp500-upside`, `--phase1-combined`) are aliases — same logic, different universe.
+
+### Unified Phase 1 (`phase1_screen`)
+
+**Label:** `phase1_trend_label` = **Trend Candidate**. Scenario flags: `emerging_*`, `golden_cross_*`.
+
+**Per timeframe (daily and/or weekly):** price above both 50 and 200 SMA; 200 SMA flat or rising (10 bars). Pass **either**:
+
+| Scenario | 50 vs 200 SMA | Extra |
+|----------|---------------|--------|
+| **Emerging pre-GC** | 50 **2%–5% below** 200 | 50 SMA rising ≥10 bars |
+| **Golden-cross zone** | 50 **0%–8% above** 200 | — |
+
+RSI, extension, and 52-week-high distance are **reported only** — not pass/fail gates.
+
+```bash
+# NASDAQ (default)
+python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --top-mtf 12 --pretty
+
+# S&P 500 (same logic)
+python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --sp500-phase1-combined --top-mtf 12 --pretty
+
+# Crypto (*-USD)
+python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --crypto-emerging-trend --pretty
+
+# Custom symbols
+python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --symbols "AAPL,BTC-USD" --top-mtf 12 --pretty
+```
+
+**Agent rule:** Show `phase1_scenarios`, `bull_score`, `mtf_verdict`, and `trade_bias` in scan tables. Log picks with `setup_tags` including `nasdaq_phase1_unified`.
+
 ## Entry timing preferences
 
 | Setup | Preferred entry | Avoid |

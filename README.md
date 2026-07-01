@@ -11,8 +11,8 @@ Built as a **Cursor Agent Skill** plus Python analysis scripts. No paid data API
 | Capability | What you get |
 |------------|--------------|
 | **Single-ticker analysis** | Long, short, or wait verdict with MTF matrix, Wyckoff phase, chart patterns, bull/bear merge, and an execution card |
-| **S&P 500 scans** | Rank ~500 names by 1- or 3-month **peak-in-span** upside, then deep-dive the top candidates with full MTF |
-| **NASDAQ golden-cross scan** | Find under-the-radar names with fresh weekly/daily golden crosses and bullish confluence |
+| **NASDAQ / S&P 500 screen** | Unified Phase 1 (emerging pre-GC + golden-cross zone) then `bull_score` MTF on top N — same logic, universe only differs |
+| **Crypto screen** | Same pipeline on major `*-USD` pairs via Yahoo |
 | **Crypto analysis** | BTC, ETH, and alts with cycle context (rainbow bands), Kraken/Coinbase live quotes, and BTC as a market driver |
 | **Market baselines** | Every stock or crypto call is framed vs **SPX**, **QQQ**, **NQ1!** (Nasdaq futures), and **BTC** so you know if a pick beats the tide |
 | **Learning journal** | Analyses are logged; outcomes are tracked over time and probabilities are calibrated from real results |
@@ -98,108 +98,107 @@ python ".cursor/skills/stock-trading-analysis/scripts/fetch_mtf_analysis.py" FSL
 The screener is a **two-phase pipeline**:
 
 ```text
-Phase 1  →  Fast filter across thousands of symbols (Yahoo weekly + daily only)
-Phase 2  →  Full MTF on top N hits (`--top-mtf`, default 12)
+Universe (NASDAQ / S&P 500 / crypto / custom)
+    → Phase 1: fast filter (Yahoo weekly + daily only)
+    → Sort Phase 1 hits
+    → Top N finalists (--top-mtf, default 12)
+    → Phase 2: fetch_mtf_analysis.py on each finalist
+    → Rank by bull_score
 ```
 
-Every Phase 1 hit carries a **`phase1_trend_label`**: **Established Trend** or **Emerging Trend**.
+Every Phase 1 hit carries **`phase1_trend_label`**: **Trend Candidate**, plus scenario flags (`emerging_*`, `golden_cross_*`).
 
-#### Phase 1 trend labels
+#### Scan modes (CLI reference)
 
-| Label | Meaning |
-|-------|---------|
-| **Established Trend** | Fresh golden cross and/or bullish structure already in place |
-| **Emerging Trend** | Pre–golden-cross: 50 SMA approaching 200 SMA from below on daily and/or weekly |
+All stock scan modes use the **same NASDAQ-base pipeline**. Only the **symbol universe** changes (NASDAQ, S&P 500, crypto, or custom). Legacy flags are kept as aliases.
+
+| Flag | Universe | Phase 2 | Rank |
+|------|----------|---------|------|
+| *(default)* | NASDAQ | Yes | `bull_score` |
+| `--phase1-combined` | NASDAQ | Yes | `bull_score` |
+| `--emerging-trend` | NASDAQ or `--symbols` | Yes | `bull_score` |
+| `--sp500-phase1-combined` | S&P 500 | Yes | `bull_score` |
+| `--sp500-upside` | S&P 500 | Yes | `bull_score` |
+| `--sp500-upside-1mo` | S&P 500 | Yes | `bull_score` |
+| `--sp500-emerging-trend` | S&P 500 | Yes | `bull_score` |
+| `--sp500-weekly` | S&P 500 | **No** — Phase 1 hits only | — |
+| `--crypto-emerging-trend` | Major crypto (`*-USD`) | Yes | `bull_score` |
+
+**Shared flags:** `--top-mtf N` (finalists for Phase 2), `--workers 12`, `--limit N` (NASDAQ only), `--symbols A,B,C` (custom list), `--pretty` (JSON indent).
+
+#### Unified Phase 1 — `phase1_screen`
+
+**Used by:** every scan mode (NASDAQ, S&P 500, crypto, custom symbols).
+
+**Data:** Yahoo weekly (`5y`) + daily (`2y`).
+
+**Pass rule:** qualify on **daily**, **weekly**, or **both**. Per qualifying timeframe, price must be **above both** 50 and 200 SMA, and 200 SMA must be **flat or rising** over 10 bars. Then pass **either** scenario:
+
+| Scenario | 50 vs 200 SMA | Extra rules |
+|----------|---------------|-------------|
+| **Emerging pre-GC** | 50 **2%–5% below** 200 | 50 SMA rising ≥10 bars |
+| **Golden-cross zone** | 50 **0%–8% above** 200 | Covers emerging GC through confirmed GC |
+
+**Not filtered (reported only):** RSI, extension from 200 SMA, 3-month gain, 52-week-high distance, mega-caps, death-cross conflicts.
+
+**Phase 1 pre-rank:**
+
+1. Both daily and weekly qualify
+2. Golden-cross zone on weekly, then daily
+3. Emerging pre-GC on weekly, then daily
+4. Tighter SMA spread (closer to cross)
+
+**Phase 1 output fields:** `phase1_scenarios`, `emerging_daily/weekly`, `golden_cross_daily/weekly`, `daily_sma50_200_gap_pct`, `weekly_sma50_above_200_pct`, `weekly_ma_stack`, `weekly_rsi`, `upside_to_52wk_high_pct`, etc.
+
+---
 
 #### Phase 1 technical indicators (lightweight)
 
-Phase 1 uses `fetch_chart.py` → Yahoo OHLC. It does **not** run full MTF — only what is needed to filter fast:
+Phase 1 uses `fetch_chart.py` → Yahoo OHLC. It does **not** run full MTF:
 
 | Indicator | Used for |
 |-----------|----------|
-| **SMA 50 / 200** | Golden/death cross detection, Emerging Trend gap (2%–5%) |
-| **SMA 20** | Daily stack context (via `fetch_yahoo` technicals) |
-| **EMA 20** | Available on daily fetch |
-| **RSI (14)** | Overbought / extension filters |
-| **MA stack** | Bullish / mixed / bearish classification |
-| **Extension from 200 SMA %** | “Already extended” rejection |
-| **Golden / death cross status** | Fresh cross age (weekly / daily lookback windows) |
-| **52-week high / low** | Distance from ATH, upside-to-high (S&P modes) |
-| **1M / 3M % change** | Parabolic / chase filters |
-| **20-day avg volume** | Liquidity context on daily bars |
+| **SMA 50 / 200** | Emerging gap (2%–5% below) and golden-cross zone (0%–8% above) |
+| **SMA slope** | 50 rising (emerging); 200 flat/rising (both scenarios) |
+| **RSI, MA stack, extension, 52w high** | Reported on hits; **not** pass/fail gates |
+| **1M / 3M % change** | Reported on hits |
 
-#### Phase 1 filters by scan mode
-
-**Established Trend — NASDAQ default (`quick_screen`)**
-
-| Filter | Rule |
-|--------|------|
-| Golden cross | Fresh **weekly** GC (≤12 weeks) **or** fresh **daily** GC (≤30 days) |
-| Weekly extension | ≤ 22% above 200 SMA |
-| Weekly RSI | ≤ 68 |
-| Daily RSI | ≤ 72 |
-| 3-month weekly gain | ≤ 45% |
-| vs 52-week high | Must be ≥ 3% below ATH |
-| Weekly MA stack | Not bearish |
-| Conflict | Rejects daily GC inside confirmed weekly death cross |
-| Universe | Mega-caps excluded (AAPL, NVDA, META, …) |
-
-**Established Trend — S&P 500 upside (`--sp500-upside`, `--sp500-upside-1mo`)**
-
-| Filter | Rule |
-|--------|------|
-| Weekly MA stack | `bullish`, `mixed_bullish`, or `mixed` |
-| Weekly death cross | Rejected (unless “forming”) |
-| Weekly extension | ≤ 35% above 200 SMA |
-| Weekly RSI | ≤ 72 |
-| Upside to 52-week high | ≥ 8% |
-| GC flags | Weekly (≤16w) and daily (≤30d) tracked for ranking |
-
-**Established Trend — S&P 500 weekly GC (`--sp500-weekly`)**
-
-| Filter | Rule |
-|--------|------|
-| Golden cross | Fresh weekly GC within `--weeks` lookback (default 5) |
-
-**Emerging Trend (`--emerging-trend`, `--sp500-emerging-trend`, `--crypto-emerging-trend`)**
-
-All rules must pass **per qualifying timeframe** (daily and/or weekly):
-
-| Filter | Rule |
-|--------|------|
-| 50 vs 200 SMA | 50 **below** 200, gap **2%–5%** |
-| 50 SMA slope | Rising over **≥10** bars (days on daily, weeks on weekly) |
-| 200 SMA slope | **Flat or rising** (declining 200 rejected) |
-| Price | **Above** both 50 and 200 SMA |
+---
 
 #### Phase 1 CLI examples
 
 ```bash
-# NASDAQ Established (default) + Phase 2 MTF on top 12
+# NASDAQ unified Phase 1 + Phase 2 MTF on top 12 (default)
 python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --top-mtf 12 --pretty
 
-# NASDAQ Established + Emerging combined
+# Same unified screen (alias)
 python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --phase1-combined --top-mtf 12 --pretty
 
-# S&P 500 — 1-month peak-gain ranking
-python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --sp500-upside-1mo --top-mtf 30 --pretty
+# S&P 500 — same Phase 1 + bull_score as NASDAQ
+python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --sp500-phase1-combined --top-mtf 12 --pretty
 
-# S&P 500 / NASDAQ / crypto Emerging Trend
-python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --sp500-emerging-trend --top-mtf 20 --pretty
+# S&P 500 Phase 1 only (no MTF)
+python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --sp500-weekly --pretty
+
+# S&P 500 aliases (--sp500-upside, --sp500-emerging-trend) — identical logic
+python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --sp500-upside --top-mtf 12 --pretty
+
+# Custom symbols (stocks or crypto)
 python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --emerging-trend --symbols "AAPL,BTC-USD" --pretty
 python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --crypto-emerging-trend --pretty
 ```
 
-#### Phase 2 ranking (after Phase 1 hits)
+---
 
-| Scan type | Phase 2 score | What it ranks |
-|-----------|---------------|---------------|
-| NASDAQ / combined Established | `bull_score` | GC freshness, MA stack, Wyckoff, MTF verdict, pattern tags, conflicts |
-| S&P upside (1mo / 3mo) | `upside_score` / `upside_score_1mo` | Bull score + upside to 52w high + pattern breakout + peak target probability |
-| Emerging Trend | `bull_score` | Emerging TF bonus + full MTF synthesis |
+#### Phase 2 ranking (after Phase 1 finalists)
 
-Phase 2 always calls `fetch_mtf_analysis.py` (full indicator list above) on each finalist.
+Phase 2 always runs `fetch_mtf_analysis.py` (full indicator stack in section 2 above) on each finalist — unless `--sp500-weekly` (Phase 1 only).
 
+| Scan type | Score key | What drives the rank |
+|-----------|-----------|----------------------|
+| All stock scans (NASDAQ, S&P, aliases) | `bull_score` | GC zone / emerging TF bonus, MA stack, Wyckoff, MTF verdict, patterns, conflicts, room below 52w high |
+
+**`bull_score` highlights:** +15 weekly GC zone, +10 daily GC zone, +12 weekly bullish stack, +8 Wyckoff accumulation, +15 MTF `bullish_aligned`; **−15** weekly distribution, **−8** per high-severity conflict, **−8** rising wedge.
 ---
 
 ### 4. Fundamental and sentiment research
@@ -264,7 +263,7 @@ Copy these into Cursor Agent chat (adjust tickers, horizon, or direction as need
 
 ### Find fresh golden crosses
 
-> Scan **NASDAQ** for fresh **weekly golden crosses** in the last month with bullish confluence. Skip mega-caps. Show me the top 10 with reasons.
+> Scan **NASDAQ** for fresh **weekly golden crosses** in the last month with bullish confluence. Show me the top 10 with reasons.
 
 ### Crypto — bottom range and cycle context
 
@@ -308,19 +307,18 @@ Copy these into Cursor Agent chat (adjust tickers, horizon, or direction as need
 # Full multi-timeframe analysis on one ticker
 python ".cursor/skills/stock-trading-analysis/scripts/fetch_mtf_analysis.py" SOFI --pretty
 
-# S&P 500 — top 1-month peak-gain candidates + MTF on top 12
-python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --sp500-upside-1mo --top-mtf 12 --pretty
+# NASDAQ unified Phase 1 scan (default)
+python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --top-mtf 12 --pretty
 
-# NASDAQ Established + Emerging combined
-python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --phase1-combined --top-mtf 12 --pretty
+# S&P 500 — same logic as NASDAQ default
+python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --sp500-phase1-combined --top-mtf 12 --pretty
 
-# S&P 500 Emerging Trend
-python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --sp500-emerging-trend --top-mtf 20 --pretty
+# S&P 500 alias (identical)
+python ".cursor/skills/stock-trading-analysis/scripts/scan_golden_cross.py" --sp500-emerging-trend --top-mtf 12 --pretty
 
 # Journal calibration
 python ".cursor/skills/stock-trading-analysis/scripts/trading_journal.py" calibrate
 ```
-
 ### Optional environment
 
 Copy `.cursor/skills/stock-trading-analysis/.env.example` to `.env` if you want a Finnhub quote cross-check (`FINNHUB_API_KEY`).
